@@ -20,6 +20,7 @@ public interface JooqToSqlUtil {
     String DOT_SELECT = ".select";
 
 
+
     String DOT_FIELDS = ".fields()";
 
     String DOT_AS = ".as";
