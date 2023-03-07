@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public interface JooqToSqlUtil {
 
+
     String LEFT_BRACKET = "(";
     String RIGHT_BRACKET = ")";
     String BLANK_STR = "";
