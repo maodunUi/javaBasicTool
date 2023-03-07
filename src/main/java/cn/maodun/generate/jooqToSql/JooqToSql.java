@@ -49,7 +49,18 @@ public class JooqToSql implements JooqToSqlUtil {
                 "                        ML_EARNEST_MONEY.REMARK.as(\"remark\"),\n" +
                 "                        ML_EARNEST_MONEY.CREATETM.as(\"createTime\"))\n" +
                 "                .from(ML_EARNEST_MONEY)";
-        jooqToSql.doAction(jooq3);
+
+        String jooq4 = ".select(BS_MSG_CENTER_ITEM.ID.as(\"id\"),\n" +
+                "                        BS_MSG_CENTER.PUSH_TITLE.as(\"pushTitle\"),\n" +
+                "                        BS_MSG_CENTER.PUSH_SUB_TITLE.as(\"pushSubTitle\"),\n" +
+                "                        BS_MSG_CENTER.IMAGE.as(\"image\"),\n" +
+                "                        BS_MSG_CENTER.URL.as(\"url\"),\n" +
+                "                        BS_MSG_CENTER.MSG_CODE.as(\"msgCode\"),\n" +
+                "                        BS_MSG_CENTER_ITEM.PUSH_TIME.as(\"pushTime\"))\n" +
+                "                .from(BS_MSG_CENTER)\n" +
+                "                .leftJoin(BS_MSG_CENTER_ITEM).on(BS_MSG_CENTER_ITEM.MSG_CODE.eq(BS_MSG_CENTER.MSG_CODE)\n" +
+                "                        .and(BS_MSG_CENTER_ITEM.PUSH_USER_ID.eq(pushUserId)))";
+        jooqToSql.doAction(jooq4);
     }
 
 
@@ -105,14 +116,24 @@ public class JooqToSql implements JooqToSqlUtil {
                 String innerJoin = innerJoins[i];
                 String[] splitByOn = innerJoin.split(DOT_ON);
                 String joinTable = discardBracket(splitByOn[0]);
+                // (BS_MSG_CENTER_ITEM.MSG_CODE.eq(BS_MSG_CENTER.MSG_CODE).and(BS_MSG_CENTER_ITEM.PUSH_USER_ID.eq(pushUserId)))
                 String joinCondition = discardBracket(splitByOn[1]);
-                if (joinCondition.contains(DOT_EQ)) {
-                    String[] splitByEq = joinCondition.split(DOT_EQ);
-                    String s = "inner join " + joinTable + " on " + splitByEq[0] + " = " + discardBracket(splitByEq[1]);
-                    joinSqlList.add(s);
+                // (BS_MSG_CENTER_ITEM.MSG_CODE.eq(BS_MSG_CENTER.MSG_CODE)
+                // (BS_MSG_CENTER_ITEM.PUSH_USER_ID.eq(pushUserId)))
+                String[] joinConditionByAndSplits = joinCondition.split(DOT_AND);
+                String s = "inner join " + joinTable + " on ";
+                joinSqlList.add(s);
+                for (String joinConditionByAndSplit : joinConditionByAndSplits) {
+                    if (joinConditionByAndSplit.contains(DOT_EQ)) {
+                        String[] splitByEq = joinConditionByAndSplit.split(DOT_EQ);
+                        s = splitByEq[0] + " = " + discardBracket(splitByEq[1]) + " and ";
+                        joinSqlList.add(s);
+                    }
                 }
             }
         }
+        String endStr = joinSqlList.get(joinSqlList.size() - 1);
+        joinSqlList.set(joinSqlList.size() - 1, endStr.replace("and", BLANK_STR));
         return joinSqlList;
     }
 

@@ -22,6 +22,7 @@ public interface JooqToSqlUtil {
     String DOT_FIELDS = ".fields()";
 
     String DOT_AS = ".as";
+    String DOT_AND = ".and";
 
     String DOT_INNER_JOIN = ".innerJoin";
     String DOT_LEFT_JOIN = ".leftJoin";
